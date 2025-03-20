@@ -1,0 +1,27 @@
+# Virtual environment
+venv/
+
+# SQLite database (if applicable)
+db.sqlite3
+
+# Compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variables
+.env
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.swp
+
+# macOS/Windows junk
+.DS_Store
+Thumbs.db
