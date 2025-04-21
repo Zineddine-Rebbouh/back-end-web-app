@@ -28,14 +28,18 @@ def apply_sentiment_to_processed_data(processed_data_id):
 
 @shared_task
 def apply_sentiment_to_all_unanalyzed():
-    """Apply sentiment analysis to all unanalyzed processed data."""
-    unanalyzed_data = ProcessedData.objects.filter(is_analyzed_for_sentiment=False)
-    total_processed = 0
+    """Apply sentiment analysis to all unanalyzed ProcessedData instances."""
+    from apps.text_processing.models import ProcessedData
+    from .services.sentiment_processor import SentimentProcessor
+
+    processor = SentimentProcessor()
+
+    # Use a Djongo-compatible query
+    unanalyzed_data = ProcessedData.objects.filter(is_analyzed_for_sentiment__exact=False)
 
     for processed_data in unanalyzed_data:
-        success = apply_sentiment_to_processed_data.delay(processed_data.id)
-        if success:
-            total_processed += 1
-
-    logger.info(f"Applied sentiment to {total_processed} unanalyzed processed items")
-    return f"Processed {total_processed} items"
+        try:
+            entities_count = processor.process_document(processed_data)
+            logger.info(f"Applied sentiment to ProcessedData ID {processed_data.id}, found {entities_count} sentiments")
+        except Exception as e:
+            logger.error(f"Error applying sentiment to ProcessedData ID {processed_data.id}: {str(e)}")
